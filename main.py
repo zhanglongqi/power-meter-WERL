@@ -13,40 +13,38 @@ read data from AC power meter Schneider PM710 and save
 """
 
 from pymodbus.client.sync import ModbusTcpClient
-from ctypes import *
-
-
-class Data_Char4(Structure):
-    _fields_ = [("c0", c_uint8, 8),
-                ("c1", c_uint8, 8),
-                ("c2", c_uint8, 8),
-                ("c3", c_uint8, 8)]
-
-
-class Data_Short2(Structure):
-    _fields_ = [("s0", c_uint16, 16),
-                ("s1", c_uint16, 16),
-                ]
-
-
-class Data(Union):
-    _fields_ = [
-        ("float", c_float),
-        ("chars", Data_Char4),
-        ("shorts", Data_Short2)
-    ]
-
+from utils import FloatData
 
 p1 = ModbusTcpClient('192.168.0.101')
-p1_ac1 = p1.read_holding_registers(999, 21, unit=2)
-p1_ac2 = p1.read_holding_registers(999, 21, unit=3)
 
-print(p1_ac1.registers)
+p1_ac1 = p1.read_holding_registers(999, 22, unit=2)
+p1_ac2 = p1.read_holding_registers(999, 22, unit=3)
 
-print(p1_ac2.registers)
+data = {}
 
-real_energy = Data()
+real_energy = FloatData()
 real_energy.shorts.s0 = p1_ac1.registers[1]
 real_energy.shorts.s1 = p1_ac1.registers[0]
+data['real_energy'] = real_energy.float
 
-print(real_energy.float)
+real_power = FloatData()
+real_power.shorts.s0 = p1_ac1.registers[7]
+real_power.shorts.s1 = p1_ac1.registers[6]
+data['real_power'] = real_power.float
+
+reactive_power = FloatData()
+reactive_power.shorts.s0 = p1_ac1.registers[11]
+reactive_power.shorts.s1 = p1_ac1.registers[10]
+data['reactive_power'] = reactive_power.float
+
+voltage_LL = FloatData()
+voltage_LL.shorts.s0 = p1_ac1.registers[15]
+voltage_LL.shorts.s1 = p1_ac1.registers[14]
+data['voltage_LL'] = voltage_LL.float
+
+frequency = FloatData()
+frequency.shorts.s0 = p1_ac1.registers[21]
+frequency.shorts.s1 = p1_ac1.registers[20]
+data['frequency'] = frequency.float
+
+print(data)

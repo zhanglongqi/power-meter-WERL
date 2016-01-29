@@ -9,7 +9,7 @@ longqi 29/Jan/16 13:48
 # 1014 float Voltage, L-L, 3P Average
 # 1020 float Frequency
 
-read data from AC power meter Sch
+read data from AC power meter Schneider PM710 and save
 """
 
 from pymodbus.client.sync import ModbusTcpClient

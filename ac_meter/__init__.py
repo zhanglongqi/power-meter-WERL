@@ -6,7 +6,6 @@ longqi 29/Jan/16 15:30
 """
 from collections import UserDict
 
-
 class MeterData(UserDict):
     def __init__(self):
         self.data = {

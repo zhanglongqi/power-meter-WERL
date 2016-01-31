@@ -47,27 +47,27 @@ class Panel():
             real_energy = FloatData()
             real_energy.shorts.s0 = res.registers[1] if not debug else -1
             real_energy.shorts.s1 = res.registers[0] if not debug else -1
-            data['real_energy'] = real_energy.float if not debug else randint(1, 100)
+            data['real_energy'] = real_energy.float if not debug else randint(1, 100) * 1.2
 
             real_power = FloatData()
             real_power.shorts.s0 = res.registers[7] if not debug else -1
             real_power.shorts.s1 = res.registers[6] if not debug else -1
-            data['real_power'] = real_power.float if not debug else randint(1, 100)
+            data['real_power'] = real_power.float if not debug else randint(1, 100) * 1.2
 
             reactive_power = FloatData()
             reactive_power.shorts.s0 = res.registers[11] if not debug else -1
             reactive_power.shorts.s1 = res.registers[10] if not debug else -1
-            data['reactive_power'] = reactive_power.float if not debug else randint(1, 100)
+            data['reactive_power'] = reactive_power.float if not debug else randint(1, 100) * 1.2
 
             voltage_LL = FloatData()
             voltage_LL.shorts.s0 = res.registers[15] if not debug else -1
             voltage_LL.shorts.s1 = res.registers[14] if not debug else -1
-            data['voltage_LL'] = voltage_LL.float if not debug else randint(1, 100)
+            data['voltage_LL'] = voltage_LL.float if not debug else randint(1, 100) * 1.2
 
             frequency = FloatData()
             frequency.shorts.s0 = res.registers[21] if not debug else -1
             frequency.shorts.s1 = res.registers[20] if not debug else -1
-            data['frequency'] = frequency.float if not debug else randint(1, 100)
+            data['frequency'] = frequency.float if not debug else randint(1, 100) * 1.2
 
             if i == 0:
                 self.AC_Meter_0.data.append(data)

@@ -14,8 +14,6 @@ read data from AC power meter Schneider PM710 and save
 from time import sleep
 from panel import Panel
 
-debug = True
-
 
 def main():
     p1 = Panel('192.168.1.101', 'P1')
@@ -27,8 +25,8 @@ def main():
     p7 = Panel('192.168.1.107', 'P7')
     p8 = Panel('192.168.1.108', 'P8')
 
-    for i in range(0, 5):
-        sleep(1)
+    for i in range(0, 10):
+        # sleep(1)
         p1.read_and_parse_from_ModbusTCP()
         p2.read_and_parse_from_ModbusTCP()
     p1.save_data()

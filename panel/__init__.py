@@ -5,14 +5,15 @@ longqi 29/Jan/16 15:24
 
 """
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
-from time import time, strftime
+from time import time, localtime, strftime
 from logging import getLogger
-from random import random
+from random import randint
 from openpyxl import Workbook
 
 from ac_meter import SchneiderPM710, MeterData
 from utils import FloatData
-from main import debug
+
+debug = True
 
 
 class Panel():
@@ -30,8 +31,7 @@ class Panel():
         self.sheet_for_AC_Meter_0 = self.book.active
         self.sheet_for_AC_Meter_0.title = 'AC_Meter_0'
 
-        self.sheet_for_AC_Meter_1 = self.book.active
-        self.sheet_for_AC_Meter_1.title = 'AC_Meter_1'
+        self.sheet_for_AC_Meter_1 = self.book.create_sheet(title='AC_Meter_1')
 
     def read_and_parse_from_ModbusTCP(self):
         for i in range(0, 2):
@@ -45,29 +45,29 @@ class Panel():
                 res = self.client.read_holding_registers(999, 22, unit=self.AC_Meter_1.unit_id) if not debug else None
 
             real_energy = FloatData()
-            real_energy.shorts.s0 = res.registers[1] if not debug else random() * 100
-            real_energy.shorts.s1 = res.registers[0] if not debug else random() * 100
-            data['real_energy'] = real_energy.float
+            real_energy.shorts.s0 = res.registers[1] if not debug else -1
+            real_energy.shorts.s1 = res.registers[0] if not debug else -1
+            data['real_energy'] = real_energy.float if not debug else randint(1, 100)
 
             real_power = FloatData()
-            real_power.shorts.s0 = res.registers[7] if not debug else random() * 100
-            real_power.shorts.s1 = res.registers[6] if not debug else random() * 100
-            data['real_power'] = real_power.float
+            real_power.shorts.s0 = res.registers[7] if not debug else -1
+            real_power.shorts.s1 = res.registers[6] if not debug else -1
+            data['real_power'] = real_power.float if not debug else randint(1, 100)
 
             reactive_power = FloatData()
-            reactive_power.shorts.s0 = res.registers[11] if not debug else random() * 100
-            reactive_power.shorts.s1 = res.registers[10] if not debug else random() * 100
-            data['reactive_power'] = reactive_power.float
+            reactive_power.shorts.s0 = res.registers[11] if not debug else -1
+            reactive_power.shorts.s1 = res.registers[10] if not debug else -1
+            data['reactive_power'] = reactive_power.float if not debug else randint(1, 100)
 
             voltage_LL = FloatData()
-            voltage_LL.shorts.s0 = res.registers[15] if not debug else random() * 100
-            voltage_LL.shorts.s1 = res.registers[14] if not debug else random() * 100
-            data['voltage_LL'] = voltage_LL.float
+            voltage_LL.shorts.s0 = res.registers[15] if not debug else -1
+            voltage_LL.shorts.s1 = res.registers[14] if not debug else -1
+            data['voltage_LL'] = voltage_LL.float if not debug else randint(1, 100)
 
             frequency = FloatData()
-            frequency.shorts.s0 = res.registers[21] if not debug else random() * 100
-            frequency.shorts.s1 = res.registers[20] if not debug else random() * 100
-            data['frequency'] = frequency.float
+            frequency.shorts.s0 = res.registers[21] if not debug else -1
+            frequency.shorts.s1 = res.registers[20] if not debug else -1
+            data['frequency'] = frequency.float if not debug else randint(1, 100)
 
             if i == 0:
                 self.AC_Meter_0.data.append(data)
@@ -77,15 +77,69 @@ class Panel():
             self.logger.info(data)
 
     def save_data(self):
+        row_begin = 3
+        col_begin = 1
+        # table header
         self.sheet_for_AC_Meter_0.append(
             ('time', 'real_energy', 'real_power', 'reactive_power', 'voltage_LL', 'frequency'))
-        for row in range(start=1, stop=len(self.AC_Meter_0.data)):
-            self.sheet_for_AC_Meter_0.append((
-                strftime('%H:%M:%S %d-%b-%Y', self.AC_Meter_0.data['time']),
-                self.AC_Meter_0.data['real_energy'],
-                self.AC_Meter_0.data['real_power'],
-                self.AC_Meter_0.data['reactive_power'],
-                self.AC_Meter_0.data['voltage_LL'],
-                self.AC_Meter_0.data['frequency']))
+
+        # put the data in
+        for row in range(row_begin, len(self.AC_Meter_0.data) + row_begin):
+            # for col in range(27, 54):
+            self.sheet_for_AC_Meter_0.cell(
+                column=col_begin, row=row,
+                value="%s" % strftime('%H:%M:%S %d-%b-%Y', localtime(self.AC_Meter_0.data[row - row_begin]['time']))
+            )
+
+            self.sheet_for_AC_Meter_0.cell(
+                column=col_begin + 1, row=row,
+                value="%f" % self.AC_Meter_0.data[row - row_begin]['real_energy']
+            ).data_type = 'float'
+
+            self.sheet_for_AC_Meter_0.cell(
+                column=col_begin + 2, row=row,
+                value="%f" % self.AC_Meter_0.data[row - row_begin]['real_power']
+            ).data_type = 'float'
+            self.sheet_for_AC_Meter_0.cell(
+                column=col_begin + 3, row=row,
+                value="%f" % self.AC_Meter_0.data[row - row_begin]['reactive_power']
+            ).data_type = 'float'
+            self.sheet_for_AC_Meter_0.cell(
+                column=col_begin + 4, row=row,
+                value="%f" % self.AC_Meter_0.data[row - row_begin]['voltage_LL']
+            ).data_type = 'float'
+            self.sheet_for_AC_Meter_0.cell(
+                column=col_begin + 5, row=row,
+                value="%f" % self.AC_Meter_0.data[row - row_begin]['frequency']
+            ).data_type = 'float'
+
+        self.sheet_for_AC_Meter_1.append(
+            ('time', 'real_energy', 'real_power', 'reactive_power', 'voltage_LL', 'frequency'))
+        for row in range(row_begin, len(self.AC_Meter_1.data) + row_begin):
+            # for col in range(27, 54):
+            self.sheet_for_AC_Meter_1.cell(
+                column=col_begin, row=row,
+                value="%s" % strftime('%H:%M:%S %d-%b-%Y', localtime(self.AC_Meter_1.data[row - row_begin]['time']))
+            )
+            self.sheet_for_AC_Meter_1.cell(
+                column=col_begin + 1, row=row,
+                value="%f" % self.AC_Meter_1.data[row - row_begin]['real_energy']
+            ).data_type = 'float'
+            self.sheet_for_AC_Meter_1.cell(
+                column=col_begin + 2, row=row,
+                value="%f" % self.AC_Meter_1.data[row - row_begin]['real_power']
+            ).data_type = 'float'
+            self.sheet_for_AC_Meter_1.cell(
+                column=col_begin + 3, row=row,
+                value="%f" % self.AC_Meter_1.data[row - row_begin]['reactive_power']
+            ).data_type = 'float'
+            self.sheet_for_AC_Meter_1.cell(
+                column=col_begin + 4, row=row,
+                value="%f" % self.AC_Meter_1.data[row - row_begin]['voltage_LL']
+            ).data_type = 'float'
+            self.sheet_for_AC_Meter_1.cell(
+                column=col_begin + 5, row=row,
+                value="%f" % self.AC_Meter_1.data[row - row_begin]['frequency']
+            ).data_type = 'float'
 
         self.book.save(filename=self.name + '-' + strftime('%H:%M:%S %d-%b-%Y') + '.xlsx')

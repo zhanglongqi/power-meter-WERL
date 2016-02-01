@@ -29,9 +29,23 @@ def main():
         # sleep(1)
         p1.read_and_parse_from_ModbusTCP()
         p2.read_and_parse_from_ModbusTCP()
+        p3.read_and_parse_from_ModbusTCP()
+        p4.read_and_parse_from_ModbusTCP()
+        p5.read_and_parse_from_ModbusTCP()
+        p6.read_and_parse_from_ModbusTCP()
+        p7.read_and_parse_from_ModbusTCP()
+        p8.read_and_parse_from_ModbusTCP()
+
     p1.save_data()
     p2.save_data()
+    p3.save_data()
+    p4.save_data()
+    p5.save_data()
+    p6.save_data()
+    p7.save_data()
+    p8.save_data()
 
 
 if __name__ == "__main__":
+    print('Author longqi.\n', 'Read data from AC power meter Schneider PM710 in WERL and save\n')
     main()

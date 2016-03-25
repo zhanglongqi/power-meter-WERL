@@ -10,7 +10,7 @@ from logging import getLogger
 from random import randint
 from openpyxl import Workbook
 
-from ac_meter import SchneiderPM710, MeterData
+from meter import SchneiderPM710, MeterData
 from utils import FloatData
 
 debug = True
@@ -142,4 +142,8 @@ class Panel():
                 value="%f" % self.AC_Meter_1.data[row - row_begin]['frequency']
             ).data_type = 'float'
 
-        self.book.save(filename=self.name + '-' + strftime('%H:%M:%S %d-%b-%Y') + '.xlsx')
+        self.book.save(filename='data/'+self.name + '-' + strftime('%H:%M:%S %d-%b-%Y') + '.xlsx')
+
+    def clear_data(self):
+        self.AC_Meter_0.data = []
+        self.AC_Meter_1.data = []

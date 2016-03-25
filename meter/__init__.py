@@ -11,7 +11,6 @@ class MeterData(UserDict):
         self.data = {
             'time': 0,
             'real_energy': 0,
-            'real_energy': 0,
             'real_power': 0,
             'reactive_power': 0,
             'voltage_LL': 0,

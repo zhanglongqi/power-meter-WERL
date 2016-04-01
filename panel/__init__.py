@@ -33,6 +33,9 @@ class Panel():
         self.sheet_for_AC_Meter_0.title = 'AC_Meter_0'
 
         self.sheet_for_AC_Meter_1 = self.book.create_sheet(title='AC_Meter_1')
+        self.dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','db')
+        if not os.path.exists(self.dir):
+            os.makedirs(self.dir)
 
     def read_and_parse_from_ModbusTCP(self):
         for i in range(0, 2):

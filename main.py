@@ -14,7 +14,10 @@ read data from AC power meter Schneider PM710 and save
 from time import sleep
 from panel import Panel
 from queue import Queue, Empty
-
+import threading
+import signal
+import time
+import sys, os
 message = Queue()
 
 
@@ -46,13 +49,17 @@ def working():
         elif cmd == 'SAVE':
             for panel in panels:
                 panel.save_data()
-            print(' Done ', end='', flush=True)
+            print(' Done ')
 
         elif cmd == 'CLEAR':
             for panel in panels:
                 panel.clear_data()
-            print(' Done ', end='', flush=True)
+            print(' Done ')
 
+        elif cmd == 'QUIT':
+            print(' Quit ')
+            sys.exit()
+            break
         elif cmd == 'NEW':
             for panel in panels:
                 panel.save_data()
@@ -60,48 +67,59 @@ def working():
             for panel in panels:
                 panel.clear_data()
 
-            print(' Done ', end='', flush=True)
-
-
+            print(' Done ')
 def cli():
-    import curses
+    print('''\n
+    ****************************************************************************\n
+    *****************    Welcome to the AC/DC meter data panel *****************\n
+    ****                    <s> (save) to save data                         ****\n
+    ****                    <c> (clear) to clear previous data              ****\n
+    ****                    <n> (new) to save and start new session         ****\n
+    ****                    <q> (quit) to quit the app                      ****\n
+    ****************************************************************************\n
+        ''')
 
-    stdscr = curses.initscr()
-    curses.noecho()
-    curses.cbreak()
-    curses.start_color()
-
-    curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
-
-    stdscr.addstr(0, 40, "Welcome to the AC/DC meter data panel", curses.A_REVERSE)
-    stdscr.addstr(1, 0, "<s> (save) to save data", curses.color_pair(1))
-    stdscr.addstr(2, 0, "<c> (clear) to clear data", curses.color_pair(1))
-    stdscr.addstr(3, 0, "<n> (new) to save and start new session\n", curses.color_pair(1))
-
-    line = 4
+    getchar = None
+    if os.name == 'nt':
+        try:
+            import termios
+        except ImportError:
+            # Non-POSIX. Return msvcrt's (Windows') getch.
+            import msvcrt
+            getchar = msvcrt.getwch
+    else:
+        # POSIX system. Create and return a getch that manipulates the tty.
+        import sys, tty
+        def _getch():
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(fd)
+                ch = sys.stdin.read(1)
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        getchar = _getch
 
     while True:
-        stdscr.refresh()
-        c = stdscr.getch()
-        if c == ord('s'):
+        cmd = getchar()
+        if cmd == 'q':
+            message.put('QUIT')
+            sys.exit(0)
+
+        if cmd == 's':
             message.put('SAVE')
-            stdscr.addstr(line, 0, 'Saving current session ...')
-            line += 1
+            print('Saving current session ...', end='')
 
-        elif c == ord('c'):
-            stdscr.addstr(line, 0, 'Clear current data ...')
+        elif cmd == 'c':
+            print('Clear current data ...', end='')
             message.put('CLEAR')
-            line += 1
 
-        elif c == ord('n'):
-            stdscr.addstr(line, 0, 'Saving current session and start new one ...')
+        elif cmd == 'n':
+            print('Saving current session and start new one ...', end='')
             message.put('NEW')
-            line += 1
 
 
 if __name__ == "__main__":
-    import threading
-
     reading_T = threading.Thread(target=working)
     reading_T.start()
 

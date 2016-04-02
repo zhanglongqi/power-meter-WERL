@@ -27,7 +27,7 @@ class Panel():
 
         self.name = name
         ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
+        ch.setLevel(logging.WARNING)
         ch.setFormatter(logging.Formatter('%(asctime)s; %(name)s - %(message)s'))
         self.logger = getLogger(self.name)
 
@@ -49,11 +49,16 @@ class Panel():
 
             data = MeterData()
             data['time'] = time()
+            try:
+                if i == 0:
+                    res = self.client.read_holding_registers(
+                        999, 22, unit=self.AC_Meter_0.unit_id) if not debug else None
+                elif i == 1:
+                    res = self.client.read_holding_registers(
+                        999, 22, unit=self.AC_Meter_1.unit_id) if not debug else None
+            except:
+                self.logger.warning((self.name, ' can not connect'))
 
-            if i == 0:
-                res = self.client.read_holding_registers(999, 22, unit=self.AC_Meter_0.unit_id) if not debug else None
-            elif i == 1:
-                res = self.client.read_holding_registers(999, 22, unit=self.AC_Meter_1.unit_id) if not debug else None
 
             real_energy = FloatData()
             real_energy.shorts.s0 = res.registers[1] if not debug else -1

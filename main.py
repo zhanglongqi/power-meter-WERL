@@ -31,6 +31,7 @@ def working():
     p6 = Panel('192.168.0.106', 'P6')
     p7 = Panel('192.168.0.107', 'P7')
     p8 = Panel('192.168.0.108', 'P8')
+    all_panels = ['_', p1, p2, p3, p4, p5, p6, p7, p8]
     panels = []
 
     while True:
@@ -46,6 +47,8 @@ def working():
 
             print('.', end='', flush=True)
             sleep(1)
+        elif cmd.isdigit():
+            panels.append(all_panels[int(cmd)])
 
         elif cmd == 'SAVE':
             for panel in panels:
@@ -123,6 +126,10 @@ def cli():
         elif cmd == 'n':
             print('Saving current session and start new one ...', end='')
             message.put('NEW')
+
+        elif cmd.isdigit():  # put corresponding panel to list
+            print('Put panel ' + cmd + ' to list ...')
+            message.put(cmd)
 
 
 if __name__ == "__main__":

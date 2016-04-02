@@ -30,8 +30,8 @@ def working():
     p5 = Panel('192.168.0.105', 'P5')
     p6 = Panel('192.168.0.106', 'P6')
     p7 = Panel('192.168.0.107', 'P7')
-    # p8 = Panel('192.168.0.108', 'P8')
-    panels = [p1, p2, p3, p4, p5, p6, p7]
+    p8 = Panel('192.168.0.108', 'P8')
+    panels = []
 
     while True:
         try:
@@ -50,6 +50,8 @@ def working():
         elif cmd == 'SAVE':
             for panel in panels:
                 panel.save_data_spreadsheet()
+            for panel in panels:
+                panel.clear_data()
             print(' Done ')
 
         elif cmd == 'CLEAR':

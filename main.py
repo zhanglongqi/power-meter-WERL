@@ -48,7 +48,7 @@ def working():
 
         elif cmd == 'SAVE':
             for panel in panels:
-                panel.save_data()
+                panel.save_data_spreadsheet()
             print(' Done ')
 
         elif cmd == 'CLEAR':
@@ -62,7 +62,7 @@ def working():
             break
         elif cmd == 'NEW':
             for panel in panels:
-                panel.save_data()
+                panel.save_data_spreadsheet()
 
             for panel in panels:
                 panel.clear_data()

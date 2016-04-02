@@ -80,7 +80,7 @@ class Panel():
 
             self.logger.info(data)
 
-    def save_data(self):
+    def save_data_spreadsheet(self):
         row_begin = 3
         col_begin = 1
         # table header

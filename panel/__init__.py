@@ -14,7 +14,7 @@ import os
 from meter import SchneiderPM710, MeterData
 from utils import FloatData
 
-debug = True
+debug = False
 
 
 class Panel():

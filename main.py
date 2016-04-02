@@ -43,7 +43,7 @@ def worker():
                 panel.read_and_parse_from_ModbusTCP()
 
             print('.', end='', flush=True)
-            sleep(1)
+            sleep(1)  # todo this will slow down the response
 
         elif cmd.isdigit():
             if all_panels[int(cmd)] in panels:

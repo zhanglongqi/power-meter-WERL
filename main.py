@@ -85,7 +85,7 @@ def cli():
     ****                    <q> (quit) to quit the app                      ****\n
     ****                                                                    ****\n
     ****                    < 1, 2, 3, 4, 5, 6, 7, 8 >                      ****\n
-    ****               press number to add corresponding panel to list      ****\n
+    ****              press number to add/remove corresponding panel        ****\n
     ****************************************************************************\n
     ''')
     getchar = None

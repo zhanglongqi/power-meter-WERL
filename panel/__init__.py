@@ -7,6 +7,7 @@ longqi 29/Jan/16 15:24
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from time import time, localtime, strftime
 from logging import getLogger
+import logging
 from random import randint
 from openpyxl import Workbook
 import os
@@ -25,7 +26,13 @@ class Panel():
         self.AC_Meter_1 = SchneiderPM710(unit_id=3)
 
         self.name = name
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        ch.setFormatter(logging.Formatter('%(asctime)s; %(name)s - %(message)s'))
         self.logger = getLogger(self.name)
+
+        self.logger.addHandler(ch)
+        self.logger.setLevel(logging.INFO)
 
         self.book = Workbook()
 
@@ -33,7 +40,7 @@ class Panel():
         self.sheet_for_AC_Meter_0.title = 'AC_Meter_0'
 
         self.sheet_for_AC_Meter_1 = self.book.create_sheet(title='AC_Meter_1')
-        self.dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','db')
+        self.dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'db')
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
 
@@ -72,13 +79,15 @@ class Panel():
             frequency.shorts.s0 = res.registers[21] if not debug else -1
             frequency.shorts.s1 = res.registers[20] if not debug else -1
             data['frequency'] = frequency.float if not debug else randint(1, 100) * 1.2
+            if res.registers[21] == 0:
+                data['frequency'] = 0
 
             if i == 0:
                 self.AC_Meter_0.data.append(data)
             elif i == 1:
                 self.AC_Meter_1.data.append(data)
 
-            self.logger.info(data)
+            self.logger.debug(data)
 
     def save_data_spreadsheet(self):
         row_begin = 3
@@ -146,7 +155,10 @@ class Panel():
                 value="%f" % self.AC_Meter_1.data[row - row_begin]['frequency']
             ).data_type = 'float'
 
-        self.book.save(filename=os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','db',self.name +'-'+ strftime('%H.%M.%S %d-%b-%Y') + '.xlsx'))
+        self.book.save(filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'db',
+                                             self.name + '-' + strftime('%H.%M.%S %d-%b-%Y') + '.xlsx'))
+
+    # def save_data_mysql(self):
 
     def clear_data(self):
         self.AC_Meter_0.data = []

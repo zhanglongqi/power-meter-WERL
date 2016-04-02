@@ -18,6 +18,7 @@ import threading
 import signal
 import time
 import sys, os
+
 message = Queue()
 
 
@@ -68,6 +69,8 @@ def working():
                 panel.clear_data()
 
             print(' Done ')
+
+
 def cli():
     print('''\n
     ****************************************************************************\n
@@ -98,6 +101,7 @@ def cli():
                 ch = sys.stdin.read(1)
             finally:
                 termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
         getchar = _getch
 
     while True:

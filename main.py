@@ -13,16 +13,13 @@ read data from AC power meter Schneider PM710 and save
 """
 from time import sleep
 from panel import Panel
-from queue import Queue, Empty
-import threading
-import signal
-import time
-import sys, os
+from queue import Empty
+import os, threading
 
-message = Queue()
+from message import message
 
 
-def working():
+def worker():
     p1 = Panel('192.168.0.101', 'P1')
     p2 = Panel('192.168.0.102', 'P2')
     p3 = Panel('192.168.0.103', 'P3')
@@ -47,8 +44,14 @@ def working():
 
             print('.', end='', flush=True)
             sleep(1)
+
         elif cmd.isdigit():
-            panels.append(all_panels[int(cmd)])
+            if all_panels[int(cmd)] in panels:
+                panels.remove(all_panels[int(cmd)])
+                print('Remove panel ' + cmd + ' from list')
+            else:
+                panels.append(all_panels[int(cmd)])
+                print('Put panel ' + cmd + ' to list')
 
         elif cmd == 'SAVE':
             for panel in panels:
@@ -62,10 +65,6 @@ def working():
                 panel.clear_data()
             print(' Done ')
 
-        elif cmd == 'QUIT':
-            print(' Quit ')
-            sys.exit()
-            break
         elif cmd == 'NEW':
             for panel in panels:
                 panel.save_data_spreadsheet()
@@ -79,14 +78,16 @@ def working():
 def cli():
     print('''\n
     ****************************************************************************\n
-    *****************    Welcome to the AC/DC meter data panel *****************\n
+    *****************   Welcome to the AC/DC meter data panel  *****************\n
     ****                    <s> (save) to save data                         ****\n
     ****                    <c> (clear) to clear previous data              ****\n
     ****                    <n> (new) to save and start new session         ****\n
     ****                    <q> (quit) to quit the app                      ****\n
+    ****                                                                    ****\n
+    ****                    < 1, 2, 3, 4, 5, 6, 7, 8 >                      ****\n
+    ****               press number to add corresponding panel to list      ****\n
     ****************************************************************************\n
-        ''')
-
+    ''')
     getchar = None
     if os.name == 'nt':
         try:
@@ -112,8 +113,8 @@ def cli():
     while True:
         cmd = getchar()
         if cmd == 'q':
-            message.put('QUIT')
-            sys.exit(0)
+            # message.put('QUIT')
+            raise KeyboardInterrupt
 
         if cmd == 's':
             message.put('SAVE')
@@ -128,12 +129,11 @@ def cli():
             message.put('NEW')
 
         elif cmd.isdigit():  # put corresponding panel to list
-            print('Put panel ' + cmd + ' to list ...')
             message.put(cmd)
 
 
 if __name__ == "__main__":
-    reading_T = threading.Thread(target=working)
+    reading_T = threading.Thread(target=worker, daemon=True)
     reading_T.start()
 
     cli_T = threading.Thread(target=cli)

@@ -4,6 +4,7 @@
 longqi 29/Jan/16 15:24
 
 """
+from pymodbus import exceptions
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from time import time, localtime, strftime
 from logging import getLogger
@@ -14,6 +15,7 @@ import os
 
 from meter import SchneiderPM710, MeterData
 from utils import FloatData
+from message import message
 
 debug = False
 
@@ -56,8 +58,10 @@ class Panel():
                 elif i == 1:
                     res = self.client.read_holding_registers(
                         999, 22, unit=self.AC_Meter_1.unit_id) if not debug else None
-            except:
+            except exceptions.ConnectionException:
                 self.logger.warning((self.name, ' can not connect'))
+                message.put(self.name[-1:])
+                return
 
 
             real_energy = FloatData()

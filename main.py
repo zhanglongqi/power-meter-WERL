@@ -98,17 +98,15 @@ def cli():
             getchar = msvcrt.getwch
     else:
         # POSIX system. Create and return a getch that manipulates the tty.
-        import sys, tty
-        def _getch():
-            fd = sys.stdin.fileno()
-            old_settings = termios.tcgetattr(fd)
-            try:
-                tty.setraw(fd)
-                ch = sys.stdin.read(1)
-            finally:
-                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        import curses
+        stdscr = curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        curses.start_color()
 
-        getchar = _getch
+        def getchar():
+            cmd = stdscr.getch()
+            return chr(cmd)
 
     while True:
         cmd = getchar()

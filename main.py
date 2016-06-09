@@ -48,22 +48,22 @@ def worker():
         elif cmd.isdigit():
             if all_panels[int(cmd)] in panels:
                 panels.remove(all_panels[int(cmd)])
-                print('Remove panel ' + cmd + ' from list')
+                print('\rRemove panel ' + cmd + ' from list\n')
             else:
                 panels.append(all_panels[int(cmd)])
-                print('Put panel ' + cmd + ' to list')
+                print('\rPut panel ' + cmd + ' to list\n')
 
         elif cmd == 'SAVE':
             for panel in panels:
                 panel.save_data_spreadsheet()
             for panel in panels:
                 panel.clear_data()
-            print(' Done ')
+            print('\r Done \n')
 
         elif cmd == 'CLEAR':
             for panel in panels:
                 panel.clear_data()
-            print(' Done ')
+            print('\r Done \n')
 
         elif cmd == 'NEW':
             for panel in panels:
@@ -72,22 +72,25 @@ def worker():
             for panel in panels:
                 panel.clear_data()
 
-            print(' Done ')
+            print('\r Done \n')
+
+
+def print_help_message():
+    print('''\n
+        ****************************************************************************\n
+        *****************   Welcome to the AC/DC meter data panel  *****************\n
+        ****                    <s> (save) to save data                         ****\n
+        ****                    <c> (clear) to clear previous data              ****\n
+        ****                    <n> (new) to save and start new session         ****\n
+        ****                    <q> (quit) to quit the app                      ****\n
+        ****                                                                    ****\n
+        ****                    < 1, 2, 3, 4, 5, 6, 7, 8 >                      ****\n
+        ****              press number to add/remove corresponding panel        ****\n
+        ****************************************************************************\n
+        ''', flush=True)
 
 
 def cli():
-    print('''\n
-    ****************************************************************************\n
-    *****************   Welcome to the AC/DC meter data panel  *****************\n
-    ****                    <s> (save) to save data                         ****\n
-    ****                    <c> (clear) to clear previous data              ****\n
-    ****                    <n> (new) to save and start new session         ****\n
-    ****                    <q> (quit) to quit the app                      ****\n
-    ****                                                                    ****\n
-    ****                    < 1, 2, 3, 4, 5, 6, 7, 8 >                      ****\n
-    ****              press number to add/remove corresponding panel        ****\n
-    ****************************************************************************\n
-    ''')
     getchar = None
     if os.name == 'nt':
         try:
@@ -103,6 +106,28 @@ def cli():
         curses.noecho()
         curses.cbreak()
         curses.start_color()
+        stdscr.addstr(0, 20, "****************************************************************************",
+                      curses.color_pair(1))
+        stdscr.addstr(1, 20, "*****************   Welcome to the AC/DC meter data panel  *****************\n",
+                      curses.color_pair(1))
+        stdscr.addstr(2, 20, "****                    <s> (save) to save data                         ****\n",
+                      curses.color_pair(1))
+        stdscr.addstr(3, 20, "****                    <c> (clear) to clear previous data              ****\n",
+                      curses.color_pair(1))
+        stdscr.addstr(4, 20, "****                    <n> (new) to save and start new session         ****\n",
+                      curses.color_pair(1))
+        stdscr.addstr(5, 20, "****                    <q> (quit) to quit the app                      ****\n",
+                      curses.color_pair(1))
+        stdscr.addstr(6, 20, "****                                                                    ****\n",
+                      curses.color_pair(1))
+        stdscr.addstr(7, 20, "****                    < 1, 2, 3, 4, 5, 6, 7, 8 >                      ****\n",
+                      curses.color_pair(1))
+        stdscr.addstr(8, 20, "****              press number to add/remove corresponding panel        ****\n",
+                      curses.color_pair(1))
+        stdscr.addstr(9, 20, "****************************************************************************\n",
+                      curses.color_pair(1))
+
+        curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
         def getchar():
             cmd = stdscr.getch()
@@ -116,14 +141,14 @@ def cli():
 
         if cmd == 's':
             message.put('SAVE')
-            print('Saving current session ...', end='')
+            print('\rSaving current session ...', end='')
 
         elif cmd == 'c':
-            print('Clear current data ...', end='')
+            print('\rClear current data ...', end='')
             message.put('CLEAR')
 
         elif cmd == 'n':
-            print('Saving current session and start new one ...', end='')
+            print('\rSaving current session and start new one ...', end='')
             message.put('NEW')
 
         elif cmd.isdigit():  # put corresponding panel to list
